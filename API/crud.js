@@ -61,8 +61,20 @@ express.get(`/`, (req, res) => {
 //========================================================================
 // Routes GET
 //========================================================================
+//Select All
 GET.forEach(route => {
   query(route);
+})
+//Select 1
+express.get("/personnels/:id", async (req, res) => {
+  const id = req.params.id;
+  console.log(id);
+  db.all(`SELECT * FROM personnels WHERE id_personnels = ${id}`, [], (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(rows);
+  });
 })
 //========================================================================
 // Routes CREATE
@@ -94,6 +106,7 @@ express.post(`/formations`, (req, res) => {
     }
   );
 })
+
 express.post(`/personnels`, (req, res) => {
   // Exemple générique, à adapter selon la structure de chaque table
   const keys = Object.keys(req.body);
@@ -111,12 +124,28 @@ express.post(`/personnels`, (req, res) => {
 // Routes DELETE
 //========================================================================
 
-// express.delete('/items/:id', (req, res) => {
-//   const idx = items.findIndex(i => i.id === parseInt(req.params.id));
-//   if (idx === -1) return res.status(404).json({ error: 'Not found' });
-//   const deleted = items.splice(idx, 1);
-//   res.json(deleted[0]);
-// });
+express.delete('/formations/:id', (req, res) => {
+  const id = req.params.id;
+  db.run(
+    `DELETE FROM formations WHERE id_formation = ${id}`,
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.status(200).json({ deleted: this.changes });
+    }
+  );
+});
+
+express.delete('/personnels/:id', (req, res) => {
+  const id = req.params.id;
+  console.log("id", id);
+  db.run(
+    `DELETE FROM personnels WHERE id_personnels = ${id}`,
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.status(200).json({ deleted: this.changes });
+    }
+  );
+});
 
 //---------------------------
 // FIN Routes DELETE
