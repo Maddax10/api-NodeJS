@@ -2,13 +2,30 @@ import Express from 'express'
 import sqlite3 from 'sqlite3'
 import cors from 'cors'
 
+const GET = ['formations', 'formateurs', 'locals', 'user', 'visits'];
+const POST = [...GET];
+const PUT = [...GET];
+
+//Configuration de l'api
 const express = Express();
 express.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-const GET = POST = PUT = ['formations', 'formateurs', 'locals', 'user', 'visits'];
+
+
+//Query à utiliser pour les GET
+const query = (route) => {
+  express.get(`/${route}`, (req, res) => {
+    db.all(`SELECT * FROM ${route}`, [], (err, rows) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      res.json(rows);
+    });
+  })
+}
 
 //==============================
 // BDD
@@ -81,13 +98,3 @@ express.post(`/user`, (req, res) => {
 
 export default express;
 
-const query = (route) => {
-  express.get(`/${route}`, (req, res) => {
-    db.all(`SELECT * FROM ${route}`, [], (err, rows) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      res.json(rows);
-    });
-  })
-}
