@@ -31,7 +31,7 @@ const query = (route) => {
 // BDD
 //==============================
 
-const db = new sqlite3.Database(`C:\\Users\\maxim\\Desktop\\Qui est là - projet\\3. BDD\\bdd.db`, (err) => {
+const db = new sqlite3.Database(`bdd.db`, (err) => {
   if (err)
     console.error('Erreur de connexion à la BDD');
   else
