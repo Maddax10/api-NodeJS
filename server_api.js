@@ -8,11 +8,11 @@ import crudRouter from './API/crud.js';
 const app = express();
 app.use(express.json());
 
-app.use('/', crudRouter);
+app.use('/api', crudRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running http:\\\\localhost:${PORT}`);
+  console.log(`Server running http://localhost:${PORT}/api`);
 });
 
 

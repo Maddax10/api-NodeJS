@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles/style.css" />
+    <title>Historique des visites</title>
+  </head>
+  <body>
+    <div class="mainHistorique">
+      <header class="headerHistorique">
+        <h1>Historiques des visites</h1>
+        <a href="visiteurs_actuels.html">Retour à l'acccueil</a>
+      </header>
+      <div class="searchDateHistorique">
+        <p>Choisissez une date :</p>
+        <form class="searchDateHistorique_date">
+          <input type="date" />
+          <button>Afficher</button>
+        </form>
+      </div>
+      <p>Exporter en CSV</p>
+      <table class="listHistorique">
+        <thead>
+          <tr>
+            <th>NOM</th>
+            <th>PRÉNOM</th>
+            <th>TYPE</th>
+            <th>DÉTAIL</th>
+            <th>HEURE ENTRÉE</th>
+            <th>HEURE SORTIE</th>
+            <th>LOCAL</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Dupont</td>
+            <td>Claire</td>
+            <td>Visite</td>
+            <td>Mme Martin</td>
+            <td>09:15</td>
+            <td>11:15</td>
+            <td>B104</td>
+          </tr>
+          <tr>
+            <td>Nguyen</td>
+            <td>Lucas</td>
+            <td>Formation</td>
+            <td>Introduction à Python</td>
+            <td>10:00</td>
+            <td>12:00</td>
+            <td>Salle 12</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>

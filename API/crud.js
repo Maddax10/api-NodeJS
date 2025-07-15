@@ -2,9 +2,9 @@ import Express from 'express'
 import sqlite3 from 'sqlite3'
 import cors from 'cors'
 
-const GET = ['formations', 'formateurs', 'locals', 'user', 'visits'];
+const GET = ['formations', 'personnels', 'locals', 'user', 'visits'];
 const POST = [...GET];
-const PUT = [...GET];
+const DELETE = [...GET];
 
 //Configuration de l'api
 const express = Express();
@@ -50,7 +50,7 @@ express.get(`/`, (req, res) => {
   const tmpDoc = {
     GET,
     POST,
-    PUT
+    DELETE
   }
   return res.status(200).json(tmpDoc);
 })
@@ -81,6 +81,32 @@ express.post(`/user`, (req, res) => {
   );
 })
 
+express.post(`/formations`, (req, res) => {
+  // Exemple générique, à adapter selon la structure de chaque table
+  const keys = Object.keys(req.body);
+  const values = Object.values(req.body);
+  db.run(
+    `INSERT INTO formations (${keys.join(',')}) VALUES (${keys.map(() => '?').join(',')})`,
+    values,
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.status(201).json({ id: this.lastID, ...req.body });
+    }
+  );
+})
+express.post(`/personnels`, (req, res) => {
+  // Exemple générique, à adapter selon la structure de chaque table
+  const keys = Object.keys(req.body);
+  const values = Object.values(req.body);
+  db.run(
+    `INSERT INTO personnels (${keys.join(',')}) VALUES (${keys.map(() => '?').join(',')})`,
+    values,
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.status(201).json({ id: this.lastID, ...req.body });
+    }
+  );
+})
 //========================================================================
 // Routes DELETE
 //========================================================================
