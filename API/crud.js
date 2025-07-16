@@ -31,7 +31,7 @@ const query = (route) => {
 // BDD
 //==============================
 
-const db = new sqlite3.Database(`bdd.db`, (err) => {
+const db = new sqlite3.Database(`API/bdd.db`, (err) => {
   if (err)
     console.error('Erreur de connexion à la BDD');
   else
@@ -65,7 +65,7 @@ express.get(`/`, (req, res) => {
 GET.forEach(route => {
   query(route);
 })
-//Select 1
+//Select 1 personnel
 express.get("/personnels/:id", async (req, res) => {
   const id = req.params.id;
   console.log(id);
