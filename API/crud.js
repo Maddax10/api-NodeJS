@@ -4,14 +4,17 @@ import cors from 'cors'
 
 const GET = ['formations', 'personnels',  'visit'];
 
-
 const ROUTES_GET = [
   '/api/formations',
   '/api/personnels',
   '/api/visitors',
   '/api/personnels/:id',
-  '/api/visitors/:email_visitors',
-  '/api/visitors/connected/:email_visitors'
+  '/api/visitors/registered/:email_visitors',
+  '/api/visitors/connected/:email_visitors',
+  '/api/visitors/here',
+  '/api/visitors/historic',
+  '/api/formations/local/:nom_formation',
+  '/api/personnels/local/:fullname_personnels'
 ];
 
 const ROUTES_POST = [
@@ -33,7 +36,6 @@ express.use(cors({
   methods: ['GET', 'POST', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-
 
 //Query à utiliser pour les GET
 const query = (route) => {
@@ -85,6 +87,7 @@ express.get(`/`, (req, res) => {
 GET.forEach(route => {
   query(route);
 })
+
 //Select 1 personnel
 express.get("/personnels/:id", async (req, res) => {
   const id = req.params.id;
@@ -96,8 +99,9 @@ express.get("/personnels/:id", async (req, res) => {
     res.json(rows);
   });
 })
+
 //Select 1 visitor s'il existe une fois en DB, on renvoit qu'il est là
-express.get("/visitors/:email_visitors", async (req, res) => {
+express.get("/visitors/registered/:email_visitors", async (req, res) => {
   const email_visitors = req.params.email_visitors;
   console.log(email_visitors);
   db.all(
@@ -113,6 +117,7 @@ express.get("/visitors/:email_visitors", async (req, res) => {
       }
     });
 })
+
 // Vérifier si un visitor est connecté
 express.get('/visitors/connected/:email_visitors', (req, res) => {
   const email_visitors = req.params.email_visitors;
@@ -129,6 +134,52 @@ express.get('/visitors/connected/:email_visitors', (req, res) => {
     }
   );
 });
+
+//Sélectionner que les personnes qui ne sont pas encore parti
+express.get("/visitors/here", async (req, res) => {
+  db.all(`SELECT * FROM visitors WHERE departure_visitors IS NULL`, [], (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(rows);
+  });
+})
+
+//Sélectionner que les personnes qui ne sont pas encore parti
+express.get("/visitors/historic", async (req, res) => {
+  db.all(`SELECT * FROM visitors WHERE departure_visitors IS NOT NULL`, [], (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(rows);
+  });
+})
+
+//récupérer le local de la formation
+express.get("/formations/local/:nom_formation", async (req, res) => {
+  const name_formation = req.params.nom_formation;
+  db.all(`SELECT local_formation FROM formations WHERE nom_formation = ?`, [name_formation], (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(rows);
+  });
+})
+
+//récupérer le local du personnel
+express.get("/personnels/local/:fullname_personnels", async (req, res) => {
+  const fullname_personnels = req.params.fullname_personnels;
+    const [firstname_personnels, name_personnels] = decodeURIComponent(fullname_personnels).split(' ');
+
+  console.log("name_personnels", firstname_personnels);
+  console.log("firstname_personnels", name_personnels);
+  db.all(`SELECT local_personnels FROM personnels WHERE firstname_personnels=? and name_personnels = ?`, [name_personnels,firstname_personnels], (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(rows);
+  });
+})
 //========================================================================
 // Routes CREATE
 //========================================================================
