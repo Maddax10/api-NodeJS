@@ -76,23 +76,44 @@ express.get("/personnels/:id", async (req, res) => {
     res.json(rows);
   });
 })
+//Select 1 visitor s'il existe une fois en DB, on renvoit qu'il est là
+express.get("/visitors/:email_visitors", async (req, res) => {
+  const email_visitors = req.params.email_visitors;
+  console.log(email_visitors);
+  db.all(
+    `SELECT * FROM visitors WHERE email_visitors = ?`,
+    [email_visitors],
+    [],
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: err.message });
+      if (rows.length > 0) {
+        res.json({ registered: true, visitor: rows});
+      } else {
+        res.json({ registered: false });
+      }
+    });
+})
+// Vérifier si un visitor est connecté
+express.get('/visitors/connected/:email_visitors', (req, res) => {
+  const email_visitors = req.params.email_visitors;
+  db.get(
+    `SELECT * FROM visitors WHERE email_visitors = ? AND departure_visitors IS NULL ORDER BY arrival_visitors DESC LIMIT 1`,
+    [email_visitors],
+    (err, row) => {
+      if (err) return res.status(500).json({ error: err.message });
+      if (row) {
+        res.json({ connected: true, visitor: row });
+      } else {
+        res.json({ connected: false });
+      }
+    }
+  );
+});
 //========================================================================
 // Routes CREATE
 //========================================================================
-express.post(`/user`, (req, res) => {
-  // Exemple générique, à adapter selon la structure de chaque table
-  const keys = Object.keys(req.body);
-  const values = Object.values(req.body);
-  db.run(
-    `INSERT INTO user (${keys.join(',')}) VALUES (${keys.map(() => '?').join(',')})`,
-    values,
-    function (err) {
-      if (err) return res.status(500).json({ error: err.message });
-      res.status(201).json({ id: this.lastID, ...req.body });
-    }
-  );
-})
 
+//Ajouter une formation
 express.post(`/formations`, (req, res) => {
   // Exemple générique, à adapter selon la structure de chaque table
   const keys = Object.keys(req.body);
@@ -103,6 +124,46 @@ express.post(`/formations`, (req, res) => {
     function (err) {
       if (err) return res.status(500).json({ error: err.message });
       res.status(201).json({ id: this.lastID, ...req.body });
+    }
+  );
+})
+//Ajouter un visitors
+express.post(`/visitors`, (req, res) => {
+
+  const keys = Object.keys(req.body);
+  const values = Object.values(req.body);
+  const arrival_visitors = (new Date()).toLocaleString('fr-FR', { hour12: false });
+  
+  // On ajoute le champ arrival_visitors à l'objet que j'envoit
+  keys.push('arrival_visitors');
+  values.push(arrival_visitors);
+  
+  db.run(
+    `INSERT INTO visitors (${keys.join(',')}) VALUES (${keys.map(() => '?').join(',')})`,
+    values,
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.status(201).json({ id: this.lastID, ...req.body });
+    }
+  );
+})
+
+//modifier un visitors
+express.post(`/visitors/:email_visitors`, (req, res) => {
+  const email_visitors = req.params.email_visitors;
+  const departure_visitors = (new Date()).toLocaleString('fr-FR', { hour12: false });
+  console.log(departure_visitors.toString());
+  db.run(
+    `UPDATE visitors 
+     SET departure_visitors = ? 
+     WHERE email_visitors = ? 
+     AND arrival_visitors = (
+       SELECT MAX(arrival_visitors) FROM visitors WHERE email_visitors = ?
+     )`,
+    [departure_visitors, email_visitors, email_visitors],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.status(201).json({ email_visitors, departure_visitors });
     }
   );
 })
