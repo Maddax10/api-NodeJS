@@ -2,9 +2,29 @@ import Express from 'express'
 import sqlite3 from 'sqlite3'
 import cors from 'cors'
 
-const GET = ['formations', 'personnels', 'locals', 'user', 'visits'];
-const POST = [...GET];
-const DELETE = [...GET];
+const GET = ['formations', 'personnels',  'visit'];
+
+
+const ROUTES_GET = [
+  '/api/formations',
+  '/api/personnels',
+  '/api/visitors',
+  '/api/personnels/:id',
+  '/api/visitors/:email_visitors',
+  '/api/visitors/connected/:email_visitors'
+];
+
+const ROUTES_POST = [
+  '/api/formations',
+  '/api/visitors',
+  '/api/visitors/:email_visitors',
+  '/api/personnels'
+];
+
+const ROUTES_DELETE = [
+  '/api/formations/:id',
+  '/api/personnels/:id'
+];
 
 //Configuration de l'api
 const express = Express();
@@ -48,9 +68,9 @@ const db = new sqlite3.Database(`API/bdd.db`, (err) => {
 
 express.get(`/`, (req, res) => {
   const tmpDoc = {
-    GET,
-    POST,
-    DELETE
+    ROUTES_GET,
+    ROUTES_POST,
+    ROUTES_DELETE
   }
   return res.status(200).json(tmpDoc);
 })
